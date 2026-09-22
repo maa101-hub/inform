@@ -1016,12 +1016,70 @@
   })();
 
   /* ─────────────────────────────────────────────
+     TRACK RECORD — split heading, timeline draw L→R,
+     cards stagger in (fade + y). Dot pulse is CSS.
+  ───────────────────────────────────────────── */
+  (function trackRecord() {
+    const section = document.getElementById("track");
+    if (!section) return;
+
+    const heading = section.querySelector(".ach-heading");
+    const rail    = section.querySelector(".ach-rail");
+    const dot     = section.querySelector(".ach-dot");
+    const conns   = gsap.utils ? gsap.utils.toArray(".ach-connector", section) : [];
+    const cards   = gsap.utils ? gsap.utils.toArray(".ach-card", section) : [];
+
+    // split heading into words (inner span rises out of a clip box)
+    let headWords = [];
+    if (heading) {
+      const wrap = (node) => {
+        const parts = node.textContent.split(/(\s+)/);
+        const frag = document.createDocumentFragment();
+        parts.forEach((part) => {
+          if (part === "") return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+          const outer = document.createElement("span"); outer.className = "ach-word";
+          const inner = document.createElement("span");  inner.textContent = part;
+          outer.appendChild(inner); frag.appendChild(outer); headWords.push(inner);
+        });
+        node.parentNode.replaceChild(frag, node);
+      };
+      Array.from(heading.childNodes).forEach((child) => {
+        if (child.nodeType === Node.TEXT_NODE) wrap(child);
+        else if (child.nodeType === Node.ELEMENT_NODE)
+          Array.from(child.childNodes).forEach((tn) => { if (tn.nodeType === Node.TEXT_NODE) wrap(tn); });
+      });
+    }
+
+    if (!window.gsap || !window.ScrollTrigger || prefersReduced) return;
+
+    gsap.set(headWords, { yPercent: 0 });
+    if (rail) gsap.set(rail, { scaleX: 0 });
+    if (dot)  gsap.set(dot, { opacity: 0, scale: 0 });
+    gsap.set(conns, { scaleY: 0, transformOrigin: "top center" });
+    gsap.set(cards, { opacity: 0, y: 34 });
+
+    const tl = gsap.timeline({
+      scrollTrigger: { trigger: section, start: "top 72%", once: true },
+    });
+
+    tl.from(headWords, { yPercent: 118, opacity: 0, duration: 0.8, stagger: 0.06, ease: "power4.out" })
+      // timeline rail draws left → right
+      .to(rail, { scaleX: 1, duration: 0.9, ease: "power2.inOut" }, "-=0.3")
+      // center dot pops in as the rail passes through
+      .to(dot, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, "-=0.35")
+      .to(conns, { scaleY: 1, duration: 0.4, stagger: 0.08, ease: "power2.out" }, "-=0.3")
+      // cards stagger in with fade + upward movement
+      .to(cards, { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: "power3.out" }, "-=0.25");
+  })();
+
+  /* ─────────────────────────────────────────────
      GENERIC SCROLL REVEALS
   ───────────────────────────────────────────── */
   if (window.gsap && window.ScrollTrigger) {
     [
       ".story-copy > *", ".tl-item",
-      ".work-item", ".feat-card", ".ach-card",
+      ".work-item", ".feat-card",
       ".cta-headline, .cta-sub", ".stat",
     ].forEach((sel) => {
       gsap.utils.toArray(sel).forEach((el) => {
