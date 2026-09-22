@@ -749,6 +749,10 @@ body.no-cine .intro-enter { opacity: 1 !important; pointer-events: auto !importa
 .st-emerald { background: rgba(16,185,129,0.1);  border-color: rgba(16,185,129,0.25);  color: #6ee7b7; }
 .st-amber   { background: rgba(245,158,11,0.1);  border-color: rgba(245,158,11,0.25);  color: #fcd34d; }
 .st-pink    { background: rgba(236,72,153,0.1);  border-color: rgba(236,72,153,0.25);  color: #f9a8d4; }
+.st-teal    { background: rgba(20,184,166,0.1);   border-color: rgba(20,184,166,0.28);  color: #5eead4; }
+/* inline SVG icons for tools without a devicon — matches devicon <i> sizing */
+.skill-tag .st-svg { width: 15px; height: 15px; line-height: 1; flex-shrink: 0; transition: transform 0.28s var(--ease); }
+.skill-tag:hover .st-svg { transform: scale(1.12); }
 
 /* center blue core dot with subtle pulse */
 .skills-core {
@@ -797,6 +801,7 @@ body.no-cine .intro-enter { opacity: 1 !important; pointer-events: auto !importa
   .skill-group:nth-child(4) .skill-tag { animation-delay: -0.7s; }
   .skill-group:nth-child(5) .skill-tag { animation-delay: -3.5s; }
   .skill-group:nth-child(6) .skill-tag { animation-delay: -2.1s; }
+  .skill-group:nth-child(7) .skill-tag { animation-delay: -4.2s; }
   .skill-tag:hover { animation: none; }   /* hover/magnet takes over cleanly */
 }
 @keyframes skillBreathe {
