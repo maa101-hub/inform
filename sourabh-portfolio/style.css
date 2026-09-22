@@ -739,6 +739,37 @@ body.no-cine .intro-enter { opacity: 1 !important; pointer-events: auto !importa
 @media (max-width: 980px) { .skills-core { display: none; } }
 @media (prefers-reduced-motion: reduce) { .skills-core span { animation: none; } }
 
+/* constellation net linking categories to the core */
+.skills-net {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 0; overflow: visible;
+}
+.skills-net-line {
+  stroke: rgba(59,130,246,0.16);
+  stroke-width: 1;
+  stroke-dasharray: 3 6;
+}
+.skills-net-dot { fill: #7cb0ff; filter: drop-shadow(0 0 4px rgba(59,130,246,0.9)); }
+@media (max-width: 980px) { .skills-net { display: none; } }
+
+/* pills sit above the net */
+.skill-group { position: relative; z-index: 1; }
+
+/* idle breathing glow — subtle, uses the pill's own accent color */
+@media (prefers-reduced-motion: no-preference) and (min-width: 981px) {
+  .skill-tag { animation: skillBreathe 5.6s ease-in-out infinite; }
+  .skill-group:nth-child(2) .skill-tag { animation-delay: -1.4s; }
+  .skill-group:nth-child(3) .skill-tag { animation-delay: -2.8s; }
+  .skill-group:nth-child(4) .skill-tag { animation-delay: -0.7s; }
+  .skill-group:nth-child(5) .skill-tag { animation-delay: -3.5s; }
+  .skill-group:nth-child(6) .skill-tag { animation-delay: -2.1s; }
+  .skill-tag:hover { animation: none; }   /* hover/magnet takes over cleanly */
+}
+@keyframes skillBreathe {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  50%      { box-shadow: 0 0 14px -5px currentColor; }
+}
+
 /* -------------------- STORY / ABOUT ME -------------------- */
 .story {
   position: relative;

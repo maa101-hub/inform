@@ -864,6 +864,103 @@
   }
 
   /* ─────────────────────────────────────────────
+     SKILLS CONSTELLATION — faint lines link each
+     category to the center core, with a pulse that
+     travels inward. Redrawn on resize.
+  ───────────────────────────────────────────── */
+  (function skillsConstellation() {
+    const grid = document.querySelector(".skills-grid");
+    const core = document.querySelector(".skills-core");
+    if (!grid || !core) return;
+    // core is hidden < 980px; skip there and under reduced motion
+    if (prefersReduced) return;
+
+    const SVGNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(SVGNS, "svg");
+    svg.setAttribute("class", "skills-net");
+    svg.setAttribute("aria-hidden", "true");
+    grid.insertBefore(svg, grid.firstChild);
+
+    const groups = Array.from(grid.querySelectorAll(".skill-group"));
+
+    const draw = () => {
+      if (window.matchMedia("(max-width: 980px)").matches) {
+        svg.style.display = "none";
+        return;
+      }
+      svg.style.display = "";
+      const gr = grid.getBoundingClientRect();
+      svg.setAttribute("viewBox", "0 0 " + gr.width + " " + gr.height);
+      svg.setAttribute("width", gr.width);
+      svg.setAttribute("height", gr.height);
+      const cr = core.getBoundingClientRect();
+      const cx = cr.left - gr.left + cr.width / 2;
+      const cy = cr.top - gr.top + cr.height / 2;
+
+      // clear
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+      groups.forEach((g, i) => {
+        const r = g.getBoundingClientRect();
+        const gx = r.left - gr.left + r.width / 2;
+        const gy = r.top - gr.top + r.height / 2;
+
+        const line = document.createElementNS(SVGNS, "line");
+        line.setAttribute("x1", gx); line.setAttribute("y1", gy);
+        line.setAttribute("x2", cx); line.setAttribute("y2", cy);
+        line.setAttribute("class", "skills-net-line");
+        svg.appendChild(line);
+
+        // traveling pulse dot from the category toward the core
+        const dot = document.createElementNS(SVGNS, "circle");
+        dot.setAttribute("r", "2.4");
+        dot.setAttribute("class", "skills-net-dot");
+        svg.appendChild(dot);
+        if (window.gsap) {
+          gsap.fromTo(dot,
+            { attr: { cx: gx, cy: gy }, opacity: 0 },
+            {
+              attr: { cx: cx, cy: cy }, opacity: 1,
+              duration: 1.8, ease: "power1.inOut",
+              repeat: -1, repeatDelay: 1.1, delay: i * 0.5,
+              yoyo: false,
+              onRepeat: () => gsap.set(dot, { attr: { cx: gx, cy: gy } }),
+            }
+          );
+        }
+      });
+    };
+
+    // draw after layout settles, and on resize (debounced)
+    const kick = () => requestAnimationFrame(draw);
+    window.addEventListener("load", kick);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(kick);
+    let rt;
+    window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(draw, 150); }, { passive: true });
+    kick();
+  })();
+
+  /* ─────────────────────────────────────────────
+     SKILL PILLS — magnetic tilt toward the cursor
+     (pointer:fine only; cheap transform-only).
+  ───────────────────────────────────────────── */
+  (function skillPillMagnet() {
+    if (isTouchDevice || prefersReduced) return;
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+
+    document.querySelectorAll(".skill-tag").forEach((pill) => {
+      pill.addEventListener("mousemove", (e) => {
+        const r = pill.getBoundingClientRect();
+        const dx = (e.clientX - (r.left + r.width / 2)) / r.width;   // -0.5..0.5
+        const dy = (e.clientY - (r.top + r.height / 2)) / r.height;
+        pill.style.transform =
+          "translate(" + (dx * 6) + "px," + (dy * 4 - 3) + "px) rotate(" + (dx * 3) + "deg) scale(1.06)";
+      });
+      pill.addEventListener("mouseleave", () => { pill.style.transform = ""; });
+    });
+  })();
+
+  /* ─────────────────────────────────────────────
      GENERIC SCROLL REVEALS
   ───────────────────────────────────────────── */
   if (window.gsap && window.ScrollTrigger) {
