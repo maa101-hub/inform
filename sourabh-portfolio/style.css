@@ -397,16 +397,17 @@ body.no-cine .intro-enter { opacity: 1 !important; pointer-events: auto !importa
 .hero-media picture, .hero-media img {
   width: 100%; height: 100%; display: block;
   object-fit: cover; object-position: center;
-  /* lift the person + laptop out of the dark */
-  filter: brightness(1.09) contrast(1.03) saturate(1.05);
+  /* lift the person + laptop out of the dark (~10% brighter overall) */
+  filter: brightness(1.20) contrast(1.04) saturate(1.06);
 }
-/* soft spotlight on the person (center) + gentle vignette that keeps
-   the edge tech cards subtle, so the person stays the focus */
+/* soft spotlight on the person + laptop (center) + gentle vignette that keeps
+   the edge tech cards subtle, so the person stays the focus.
+   The center highlight is a touch stronger so the face/laptop read brighter. */
 .hero-media::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background:
-    radial-gradient(46% 58% at 60% 46%, rgba(120,150,255,0.14), transparent 60%),
-    radial-gradient(120% 105% at 58% 50%, transparent 42%, rgba(5,4,10,0.46) 100%);
+    radial-gradient(46% 58% at 60% 46%, rgba(150,175,255,0.20), transparent 62%),
+    radial-gradient(120% 105% at 58% 50%, transparent 44%, rgba(5,4,10,0.44) 100%);
 }
 .hero-scrim {
   position: absolute; inset: 0;
@@ -445,7 +446,7 @@ body.no-cine .intro-enter { opacity: 1 !important; pointer-events: auto !importa
 }
 .hero-name {
   font-family: var(--font-display); font-weight: 600;
-  font-size: clamp(46px, 6.4vw, 92px);
+  font-size: clamp(42px, 5.7vw, 82px);
   letter-spacing: -0.03em; line-height: 0.98; margin-bottom: 14px;
   color: #fff;
 }
@@ -488,6 +489,39 @@ body.no-cine .intro-enter { opacity: 1 !important; pointer-events: auto !importa
 }
 @keyframes scrollDot { 0%{opacity:1;top:6px} 70%{opacity:0;top:18px} 100%{opacity:0;top:6px} }
 .hero-scroll-cue p { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+
+/* --- hero polish --- */
+/* word-by-word reveal: JS wraps each word as
+   <span class="hero-word"><span>Word</span></span>; the outer clips,
+   the inner slides. Applied to name + tagline, gradient spans preserved. */
+.hero-name .hero-word, .hero-tagline .hero-word {
+  display: inline-block; overflow: hidden; vertical-align: top;
+  padding-bottom: 0.08em; /* room for descenders + gradient */
+}
+.hero-name .hero-word > span, .hero-tagline .hero-word > span {
+  display: inline-block; will-change: transform;
+}
+/* keep the gradient rendering on split words inside a .grad span:
+   re-apply the clip to the inner word spans so each glyph shows the gradient */
+.hero-name .grad .hero-word > span,
+.hero-tagline .grad .hero-word > span {
+  background: linear-gradient(100deg, var(--blue), var(--violet) 62%, var(--cyan));
+  -webkit-background-clip: text; background-clip: text;
+  color: var(--violet); -webkit-text-fill-color: transparent;
+}
+/* social icons get magnetic hover via JS — give transform a clean layer */
+.hero-social a { will-change: transform; }
+
+/* subtle pulsing scroll indicator (gentle opacity breathe) */
+.hero-scroll-cue { animation: heroCuePulse 2.8s var(--ease) infinite; }
+@keyframes heroCuePulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-scroll-cue { animation: none; opacity: 1; }
+  .hero-scroll-cue span::after { animation: none; }
+}
 
 
 

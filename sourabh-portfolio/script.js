@@ -99,7 +99,7 @@
   /* ─────────────────────────────────────────────
      MAGNETIC BUTTONS
   ───────────────────────────────────────────── */
-  if (!isTouchDevice) {
+  if (!isTouchDevice && !prefersReduced) {
     document.querySelectorAll(".mag-btn").forEach((btn) => {
       btn.addEventListener("mousemove", (e) => {
         const r = btn.getBoundingClientRect();
@@ -108,6 +108,17 @@
         btn.style.transform = "translate(" + dx + "px," + dy + "px)";
       });
       btn.addEventListener("mouseleave", () => { btn.style.transform = "translate(0,0)"; });
+    });
+
+    // subtle magnetic pull on the hero social icons (gentler than buttons)
+    document.querySelectorAll(".hero-social a").forEach((icon) => {
+      icon.addEventListener("mousemove", (e) => {
+        const r = icon.getBoundingClientRect();
+        const dx = (e.clientX - (r.left + r.width  / 2)) * 0.34;
+        const dy = (e.clientY - (r.top  + r.height / 2)) * 0.34;
+        icon.style.transform = "translate(" + dx + "px," + (dy - 2) + "px)";
+      });
+      icon.addEventListener("mouseleave", () => { icon.style.transform = ""; });
     });
   }
 
@@ -343,23 +354,67 @@
   /* ─────────────────────────────────────────────
      HERO REVEAL (static section, plays on load/scroll)
   ───────────────────────────────────────────── */
-  if (window.gsap && !prefersReduced) {
-    const heroTl = gsap.timeline();
+  (function heroReveal() {
+    // Split .hero-name and .hero-tagline into per-word spans:
+    //   <span class="hero-word"><span>Word</span></span>
+    // Text nodes are wrapped in place; existing element children (the
+    // gradient <span class="grad">) are preserved and their text is wrapped
+    // too, so the gradient keeps rendering on those words.
+    function splitWords(root) {
+      if (!root) return [];
+      const words = [];
+      const wrapTextNode = (node) => {
+        const parts = node.textContent.split(/(\s+)/); // keep whitespace tokens
+        const frag = document.createDocumentFragment();
+        parts.forEach((part) => {
+          if (part === "" ) return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+          const outer = document.createElement("span");
+          outer.className = "hero-word";
+          const inner = document.createElement("span");
+          inner.textContent = part;
+          outer.appendChild(inner);
+          frag.appendChild(outer);
+          words.push(inner);
+        });
+        node.parentNode.replaceChild(frag, node);
+      };
+      Array.from(root.childNodes).forEach((child) => {
+        if (child.nodeType === Node.TEXT_NODE) {
+          wrapTextNode(child);
+        } else if (child.nodeType === Node.ELEMENT_NODE) {
+          // wrap text inside gradient spans etc., keeping the element (and its
+          // class, e.g. .grad) as the container so styling is retained
+          Array.from(child.childNodes).forEach((tn) => {
+            if (tn.nodeType === Node.TEXT_NODE) wrapTextNode.call(null, tn);
+          });
+        }
+      });
+      return words;
+    }
 
-    // 1. background  2. eyebrow  3. kicker  4. name  5. tagline  6. sub  7. CTAs  8. social
+    const nameWords = splitWords(document.querySelector(".hero-name"));
+    const tagWords  = splitWords(document.querySelector(".hero-tagline"));
+
+    // reduced motion / no GSAP: leave everything visible and static
+    if (!window.gsap || prefersReduced) return;
+
+    const heroTl = gsap.timeline();
     heroTl
       .from(".hero-media", { opacity: 0, scale: 1.045, duration: 1.4, ease: "power3.out" })
       .from(".hero-eyebrow", { y: -14, opacity: 0, duration: 0.7, ease: "power3.out" }, 0.35)
       .from(".hero-kicker", { y: 12, opacity: 0, duration: 0.55, ease: "power3.out" }, 0.5)
-      // name lifts in with a soft focus-pull (blur → sharp) for a premium feel
-      .from(".hero-name", { y: 34, opacity: 0, filter: "blur(14px)", duration: 1.1, ease: "power4.out" }, 0.6)
-      .from(".hero-tagline", { y: 22, opacity: 0, filter: "blur(8px)", duration: 0.9, ease: "power4.out" }, 0.85)
-      .from(".hero-sub", { y: 18, opacity: 0, duration: 0.8, ease: "power3.out" }, 1.05)
-      .from(".hero-actions", { y: 16, opacity: 0, duration: 0.7, ease: "power3.out" }, 1.2)
-      .from(".hero-social a", { y: 14, opacity: 0, duration: 0.55, stagger: 0.08, ease: "power3.out" }, 1.32)
-      // clear any lingering blur so text stays crisp for the rest of the session
-      .set([".hero-name", ".hero-tagline"], { clearProps: "filter" });
-  }
+      // word-by-word headline: inner spans rise out of their clipping word box
+      .from(nameWords, { yPercent: 118, opacity: 0, duration: 0.9, stagger: 0.09, ease: "power4.out" }, 0.6)
+      .from(tagWords,  { yPercent: 112, opacity: 0, duration: 0.7, stagger: 0.05, ease: "power4.out" }, 0.98)
+      // subtitle: subtle fade-up
+      .from(".hero-sub", { y: 18, opacity: 0, duration: 0.8, ease: "power3.out" }, 1.3)
+      // CTAs: gentle scale-in
+      .from(".hero-actions .btn", { scale: 0.85, opacity: 0, duration: 0.6, stagger: 0.1, ease: "back.out(1.5)" }, 1.45)
+      .from(".hero-social a", { y: 14, opacity: 0, duration: 0.55, stagger: 0.08, ease: "power3.out" }, 1.6)
+      // clear transforms so words sit naturally afterward
+      .set(nameWords.concat(tagWords), { clearProps: "transform" });
+  })();
 
   /* ═════════════════════════════════════════════
      HERO PHOTO — subtle life on the baked-in artwork
