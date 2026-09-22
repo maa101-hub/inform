@@ -870,7 +870,7 @@
     [
       ".story-copy > *", ".tl-item",
       ".work-item", ".feat-card", ".ach-card",
-      ".cta-headline, .cta-sub, .cta-form", ".stat",
+      ".cta-headline, .cta-sub", ".stat",
     ].forEach((sel) => {
       gsap.utils.toArray(sel).forEach((el) => {
         gsap.fromTo(el,
@@ -929,6 +929,72 @@
       cfSubmit.querySelector("span").textContent = "Send message";
     });
   }
+
+  /* ─────────────────────────────────────────────
+     CONTACT SECTION — column reveal + paper-plane flight
+     along its dotted trail, handwriting fade-in.
+  ───────────────────────────────────────────── */
+  (function contactReveal() {
+    const cta = document.getElementById("contact");
+    if (!cta) return;
+    if (!window.gsap || !window.ScrollTrigger) return;
+
+    const intentCards = gsap.utils.toArray(".cta-intent-card, .cta-status", cta);
+    const elLinks     = gsap.utils.toArray(".cta-el-link", cta);
+    const formPanel   = cta.querySelector(".cta-form-panel");
+    const handLeft    = cta.querySelector(".cta-hand-left");
+    const planeWrap   = cta.querySelector(".cta-plane-wrap");
+    const plane       = document.getElementById("ctaPlane");
+    const trail       = document.getElementById("ctaTrailPath");
+
+    if (prefersReduced) {
+      gsap.set([intentCards, elLinks, formPanel, handLeft, planeWrap], { opacity: 1, x: 0, y: 0 });
+      return;
+    }
+
+    gsap.set(intentCards, { opacity: 0, x: -22 });
+    gsap.set(elLinks,     { opacity: 0, x: 22 });
+    gsap.set(formPanel,   { opacity: 0, y: 26 });
+    if (handLeft)  gsap.set(handLeft,  { opacity: 0, y: 10 });
+    if (planeWrap) gsap.set(planeWrap, { opacity: 0 });
+
+    // dotted trail draws in
+    let trailLen = 0;
+    if (trail) {
+      trailLen = trail.getTotalLength ? trail.getTotalLength() : 260;
+      gsap.set(trail, { strokeDasharray: "4 7", strokeDashoffset: trailLen });
+    }
+
+    const tl = gsap.timeline({
+      scrollTrigger: { trigger: cta, start: "top 68%", once: true },
+    });
+
+    tl.to(formPanel,   { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" })
+      .to(intentCards, { opacity: 1, x: 0, duration: 0.6, stagger: 0.1, ease: "power3.out" }, "-=0.45")
+      .to(elLinks,     { opacity: 1, x: 0, duration: 0.6, stagger: 0.1, ease: "power3.out" }, "-=0.55")
+      .to(handLeft,    { opacity: 0.9, y: 0, duration: 0.7, ease: "power2.out" }, "-=0.4");
+
+    // plane + trail: the trail draws, the plane rides in behind it
+    if (planeWrap) {
+      tl.to(planeWrap, { opacity: 1, duration: 0.5, ease: "power2.out" }, "-=0.5");
+      if (trail) {
+        tl.to(trail, { strokeDashoffset: 0, duration: 1.0, ease: "power2.out" }, "-=0.4");
+      }
+      if (plane) {
+        tl.from(plane, {
+          x: -120, y: 60, rotate: -18, opacity: 0,
+          duration: 1.0, ease: "power3.out",
+        }, "-=0.9");
+        // gentle idle float once it lands
+        tl.add(() => {
+          gsap.to(plane, {
+            y: "-=6", rotate: "+=3",
+            duration: 2.6, ease: "sine.inOut", repeat: -1, yoyo: true,
+          });
+        });
+      }
+    }
+  })();
 
   /* ─────────────────────────────────────────────
      TIMELINE LINE DRAW-IN — the vertical connector
