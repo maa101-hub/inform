@@ -459,8 +459,8 @@
         url: "campus-connect.vercel.app",
         img: "assets/projects/campus-connect.webp",
         link: "https://github.com/maa101-hub/campus-connect",
-        demo: "https://vercel.com/maa101-hubs-projects/campus-connect",
-        demoLabel: "Live Demo",
+        demo: "https://www.linkedin.com/feed/update/urn:li:activity:7480291485754540032/",
+        demoLabel: "Demo Video",
       },
       {
         idx: "04 / 06",
