@@ -570,16 +570,145 @@
     </div>
   </section>
   <!-- ============ ACHIEVEMENTS ============ -->
-  <section class="achievements">
+  <section class="achievements" id="track">
     <div class="ach-head">
-      <p class="section-kicker">Track record</p>
-      <h2>Consistency, measured.</h2>
+      <div class="ach-head-left">
+        <p class="section-kicker">Track record <span class="ach-kicker-line"></span></p>
+        <h2 class="ach-heading">Consistency, <span class="grad">measured.</span></h2>
+      </div>
+      <p class="ach-head-right">Same effort. Greater outcomes.</p>
     </div>
+
+    <!-- glowing horizontal timeline connecting the cards -->
+    <div class="ach-timeline" aria-hidden="true">
+      <span class="ach-rail" id="achRail"></span>
+      <span class="ach-connector ach-connector-1"></span>
+      <span class="ach-connector ach-connector-2"></span>
+      <span class="ach-connector ach-connector-3"></span>
+      <span class="ach-dot" id="achDot"></span>
+    </div>
+
     <div class="ach-grid">
-      <div class="ach-card"><h4>Amazon HackOn S4</h4><p>Cleared coding round &mdash; June 2024</p></div>
-      <div class="ach-card"><h4>LeetCode </h4><p>Peak rating 1700+ &middot; <a href="https://leetcode.com/u/sourabhramteke800/" target="_blank" rel="noopener">Sourabh_101</a></p></div>
-      <div class="ach-card"><h4>GeeksforGeeks</h4><p>Active problem solver &middot; <a href="https://auth.geeksforgeeks.org/user/sourabhracv1w" target="_blank" rel="noopener">sourabhracv1w</a></p></div>
-      <div class="ach-card"><h4>NIT Trichy MCA</h4><p>CGPA 7.8 &middot; Graduating May 2026</p></div>
+
+      <!-- 01 — Amazon HackOn S4 -->
+      <article class="ach-card">
+        <div class="ach-card-top">
+          <span class="ach-index">01 <em>/ 06</em></span>
+          <span class="ach-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Jun 2024</span>
+        </div>
+        <div class="ach-card-body">
+          <span class="ach-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15c4 2.5 12 2.5 16 0"/><path d="M18 13c1.2 1.2 1.4 2.6 1 4"/><circle cx="12" cy="8" r="4"/></svg>
+          </span>
+          <div>
+            <h4>Amazon HackOn S4</h4>
+            <p>Cleared coding round &mdash; June 2024.</p>
+          </div>
+        </div>
+        <span class="ach-tag">Competitive Programming</span>
+      </article>
+
+      <!-- 02 — LeetCode -->
+      <article class="ach-card ach-card-center">
+        <div class="ach-card-top">
+          <span class="ach-index">02 <em>/ 06</em></span>
+          <span class="ach-badge ach-badge-rating"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg>1700+</span>
+        </div>
+        <div class="ach-card-body">
+          <span class="ach-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 4 8 9.5a3 3 0 0 0 0 4.2L13.5 19"/><path d="M8 12h9"/></svg>
+          </span>
+          <div>
+            <h4>LeetCode</h4>
+            <p>Peak rating 1700+.</p>
+            <a class="ach-link" href="https://leetcode.com/u/sourabhramteke800/" target="_blank" rel="noopener">sourabhramteke800 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+          </div>
+        </div>
+        <span class="ach-tag">Problem Solving</span>
+      </article>
+
+      <!-- 03 — CodeChef -->
+      <article class="ach-card">
+        <div class="ach-card-top">
+          <span class="ach-index">03 <em>/ 06</em></span>
+          <span class="ach-badge ach-badge-rating"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 15 9l7 .5-5.5 4.5L18 21l-6-3.8L6 21l1.5-7L2 9.5 9 9 12 2Z"/></svg>2&#9733; · 1500+</span>
+        </div>
+        <div class="ach-card-body">
+          <span class="ach-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12c0-3.9 3.1-7 7-7s7 3.1 7 7"/><path d="M4 12h16v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-3Z"/><path d="M12 5V3"/></svg>
+          </span>
+          <div>
+            <h4>CodeChef</h4>
+            <p>Highest rating 1500+ &middot; 2&#9733; coder.</p>
+            <a class="ach-link" href="https://www.codechef.com/users/sourabh7283" target="_blank" rel="noopener">sourabh7283 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+          </div>
+        </div>
+        <span class="ach-tag">Competitive Programming</span>
+      </article>
+
+      <!-- 04 — Codeforces -->
+      <article class="ach-card">
+        <div class="ach-card-top">
+          <span class="ach-index">04 <em>/ 06</em></span>
+          <span class="ach-badge ach-badge-rating"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg>1000+</span>
+        </div>
+        <div class="ach-card-body">
+          <span class="ach-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="10" width="4" height="10" rx="1"/><rect x="10" y="5" width="4" height="15" rx="1"/><rect x="17" y="13" width="4" height="7" rx="1"/></svg>
+          </span>
+          <div>
+            <h4>Codeforces</h4>
+            <p>Highest rating 1000+.</p>
+            <a class="ach-link" href="https://codeforces.com/profile/sourabh1311" target="_blank" rel="noopener">sourabh1311 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+          </div>
+        </div>
+        <span class="ach-tag">Competitive Programming</span>
+      </article>
+
+      <!-- 05 — GeeksforGeeks -->
+      <article class="ach-card">
+        <div class="ach-card-top">
+          <span class="ach-index">05 <em>/ 06</em></span>
+          <span class="ach-badge ach-badge-rating"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>800+ solved</span>
+        </div>
+        <div class="ach-card-body">
+          <span class="ach-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="M12 8v5M9.5 10.5h5"/></svg>
+          </span>
+          <div>
+            <h4>GeeksforGeeks</h4>
+            <p>Active problem solver &middot; 800+ solved.</p>
+            <a class="ach-link" href="https://www.geeksforgeeks.org/profile/sourabhracv1w" target="_blank" rel="noopener">sourabhracv1w <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+          </div>
+        </div>
+        <span class="ach-tag">Problem Solving</span>
+      </article>
+
+      <!-- 06 — HackerRank -->
+      <article class="ach-card">
+        <div class="ach-card-top">
+          <span class="ach-index">06 <em>/ 06</em></span>
+          <span class="ach-badge ach-badge-active"><span class="ach-badge-dot"></span>5&#9733; · 2&#9733;</span>
+        </div>
+        <div class="ach-card-body">
+          <span class="ach-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v12l8 4 8-4V6l-8-4Z"/><path d="M9 9v6M15 9v6M9 12h6"/></svg>
+          </span>
+          <div>
+            <h4>HackerRank</h4>
+            <p>5&#9733; Problem Solving &middot; 2&#9733; Python.</p>
+            <a class="ach-link" href="https://www.hackerrank.com/profile/sourabhramteke81" target="_blank" rel="noopener">sourabhramteke81 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+          </div>
+        </div>
+        <span class="ach-tag">Problem Solving</span>
+      </article>
+
+    </div>
+
+    <div class="ach-caption" aria-hidden="true">
+      <span class="ach-caption-line"></span>
+      <span class="ach-caption-text">Discipline today, better tomorrow</span>
+      <span class="ach-caption-line"></span>
     </div>
   </section>
 
