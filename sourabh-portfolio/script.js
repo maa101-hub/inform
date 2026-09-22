@@ -908,6 +908,96 @@
   }
 
   /* ─────────────────────────────────────────────
+     TIMELINE LINE DRAW-IN — the vertical connector
+     draws downward as the Story timeline enters view.
+  ───────────────────────────────────────────── */
+  (function timelineDraw() {
+    const timeline = document.querySelector(".story-timeline");
+    if (!timeline) return;
+    if (prefersReduced || !window.gsap || !window.ScrollTrigger) return;
+
+    // Mark ready so the CSS seeds --tl-draw to 0 (line collapsed at top).
+    timeline.classList.add("tl-draw-ready");
+
+    ScrollTrigger.create({
+      trigger: timeline,
+      start: "top 78%",
+      once: true,
+      onEnter: () => {
+        gsap.to(timeline, {
+          "--tl-draw": 1,
+          duration: 1.1,
+          ease: "power3.out",
+        });
+      },
+    });
+  })();
+
+  /* ─────────────────────────────────────────────
+     STAT COUNTERS — numbers count up when the About
+     section scrolls into view. Non-numeric values
+     (e.g. "Consistent") are left untouched.
+  ───────────────────────────────────────────── */
+  (function statCounters() {
+    const vals = Array.from(document.querySelectorAll(".about-stat-card .stat-val"));
+    if (!vals.length) return;
+
+    // Parse "1000+" / "1,700+" into { target, prefix, suffix }. Skip non-numeric.
+    const parse = (raw) => {
+      const m = raw.match(/^([^\d]*)([\d,]+)(.*)$/);
+      if (!m) return null;
+      const target = parseInt(m[2].replace(/,/g, ""), 10);
+      if (!Number.isFinite(target)) return null;
+      const grouped = m[2].includes(",");
+      return { prefix: m[1], target, suffix: m[3], grouped };
+    };
+
+    const format = (n, grouped) =>
+      grouped ? n.toLocaleString("en-US") : String(n);
+
+    const items = vals
+      .map((el) => ({ el, spec: parse(el.textContent.trim()) }))
+      .filter((it) => it.spec);
+
+    if (!items.length) return;
+
+    // Reduced motion / no GSAP: leave the final text as-is (already correct).
+    if (prefersReduced || !window.gsap || !window.ScrollTrigger) return;
+
+    // Seed to starting value so the count-up reads from 0.
+    items.forEach(({ el, spec }) => {
+      el.textContent = spec.prefix + format(0, spec.grouped) + spec.suffix;
+    });
+
+    const run = () => {
+      items.forEach(({ el, spec }, i) => {
+        const obj = { n: 0 };
+        gsap.to(obj, {
+          n: spec.target,
+          duration: 1.6,
+          delay: i * 0.12,
+          ease: "power2.out",
+          onUpdate: () => {
+            el.textContent = spec.prefix + format(Math.round(obj.n), spec.grouped) + spec.suffix;
+          },
+          onComplete: () => {
+            el.textContent = spec.prefix + format(spec.target, spec.grouped) + spec.suffix;
+          },
+        });
+      });
+    };
+
+    const trigger = document.querySelector(".about-stats-row") ||
+                    items[0].el.closest(".story");
+    ScrollTrigger.create({
+      trigger,
+      start: "top 85%",
+      once: true,
+      onEnter: run,
+    });
+  })();
+
+  /* ─────────────────────────────────────────────
      REFRESH TRIGGERS ONCE FONTS/LAYOUT SETTLE
   ───────────────────────────────────────────── */
   window.addEventListener("load", () => { if (window.ScrollTrigger) ScrollTrigger.refresh(); });
