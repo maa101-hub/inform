@@ -442,6 +442,8 @@
         url: "skyways-airline.vercel.app",
         img: "assets/projects/skyways.webp",
         link: "https://github.com/maa101-hub/SkyWaysAirline_Project",
+        demo: "https://www.linkedin.com/feed/update/urn:li:activity:7504070055815643136/",
+        demoLabel: "Demo Video",
       },
       {
         idx: "03 / 06",
@@ -457,6 +459,8 @@
         url: "campus-connect.vercel.app",
         img: "assets/projects/campus-connect.webp",
         link: "https://github.com/maa101-hub/campus-connect",
+        demo: "https://vercel.com/maa101-hubs-projects/campus-connect",
+        demoLabel: "Live Demo",
       },
       {
         idx: "04 / 06",
@@ -484,9 +488,11 @@
           "PostgreSQL-backed Spring Boot API with a React front end",
         ],
         stack: ["Node.js", "Express.js", "Angular", "PostgreSQL", "JWT"],
-        url: "mplychek.vercel.app",
+        url: "mlpoycheck-challenge.vercel.app",
         img: "assets/projects/mplychek.webp",
         link: "https://github.com/maa101-hub/mlpoycheck_challenge",
+        demo: "https://mlpoycheck-challenge.vercel.app/",
+        demoLabel: "Live Demo",
       },
       {
         idx: "06 / 06",
@@ -499,9 +505,11 @@
           "MongoDB-backed Node.js API with a React front end",
         ],
         stack: ["React", "Node.js", "MongoDB", "Socket.io"],
-        url: "ff-arena.vercel.app",
+        url: "free-fire-tournament.vercel.app",
         img: "assets/projects/ff.webp",
         link: "https://github.com/maa101-hub/free_fire_tournament",
+        demo: "https://vercel.com/maa101-hubs-projects/free-fire-tournament",
+        demoLabel: "Live Demo",
       },
     ];
 
@@ -513,6 +521,8 @@
       points:  document.getElementById("wsPoints"),
       stack:   document.getElementById("wsStack"),
       links:   document.getElementById("wsLinks"),
+      demoLink:  document.getElementById("wsDemoLink"),
+      demoLabel: document.getElementById("wsDemoLabel"),
       img:     document.getElementById("wsImg"),
       urlBar:  document.getElementById("wsUrlBar"),
       navLabel:document.getElementById("wsNavLabel"),
@@ -544,7 +554,16 @@
         els.desc.innerHTML = p.desc;
         els.points.innerHTML = p.points.map((pt) => "<li>" + pt + "</li>").join("");
         els.stack.innerHTML = p.stack.map((s) => "<span>" + s + "</span>").join("");
-        els.links.querySelector(".ws-link").href = p.link;
+        els.links.querySelector(".ws-github").href = p.link;
+        if (els.demoLink) {
+          if (p.demo) {
+            els.demoLink.href = p.demo;
+            els.demoLabel.textContent = p.demoLabel || "Live Demo";
+            els.demoLink.hidden = false;
+          } else {
+            els.demoLink.hidden = true;
+          }
+        }
         els.urlBar.textContent = p.url;
         els.navLabel.textContent = p.idx;
       };
