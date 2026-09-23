@@ -103,13 +103,20 @@
 
 <!-- NAV -->
 <nav class="nav" id="nav">
-  <a href="#top" class="nav-mark">SR</a>
-  <ul class="nav-links">
-    <li><a href="#work">Work</a></li>
-    <li><a href="#skills">Skills</a></li>
-    <li><a href="#pillars">Focus</a></li>
-    <li><a href="#story">Story</a></li>
-    <li><a href="#contact">Contact</a></li>
+  <a href="#top" class="nav-mark" id="navMark" aria-label="Home">
+    <span class="nm-glow" aria-hidden="true"></span>
+    <span class="nm-bracket nm-bracket-l" aria-hidden="true">&lt;</span>
+    <span class="nm-letters"><span class="nm-s">S</span><span class="nm-r">R</span></span>
+    <span class="nm-slash" aria-hidden="true">/</span>
+    <span class="nm-bracket nm-bracket-r" aria-hidden="true">&gt;</span>
+  </a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#work" data-section="work">Work</a></li>
+    <li><a href="#skills" data-section="skills">Skills</a></li>
+    <li><a href="#pillars" data-section="pillars">Focus</a></li>
+    <li><a href="#story" data-section="story">Story</a></li>
+    <li><a href="#contact" data-section="contact">Contact</a></li>
+    <span class="nav-indicator" id="navIndicator" aria-hidden="true"><i class="nav-indicator-dot"></i><i class="nav-indicator-bar"></i></span>
   </ul>
   <div class="nav-right">
     <button class="nav-cmd" id="navCmd" aria-label="Open command palette"><kbd>&#8984;K</kbd></button>
@@ -222,30 +229,71 @@
   <!-- ============ PILLARS ============ -->
   <section class="pillars" id="pillars">
     <div class="pillars-head">
-      <p class="section-kicker">Where I work</p>
-      <h2>Three disciplines. One standard.</h2>
+      <div class="pillars-head-top">
+        <p class="section-kicker">Where I work</p>
+        <p class="pillars-tagline" aria-hidden="true">BUILD <span>&times;</span> SOLVE <span>&times;</span> SHIP</p>
+      </div>
+      <div class="pillars-head-main">
+        <h2>Three disciplines. One <span class="grad">standard.</span></h2>
+        <p class="pillars-sub">Different domains.<br />Same mindset &mdash; build with impact.</p>
+      </div>
     </div>
+
     <div class="pillars-grid">
+      <!-- connector rail with glowing nodes -->
+      <div class="pillars-rail" aria-hidden="true">
+        <span class="rail-line"></span>
+        <span class="rail-node rail-node-blue"></span>
+        <span class="rail-node rail-node-violet"></span>
+        <span class="rail-node rail-node-cyan"></span>
+      </div>
+
       <article class="pillar" data-accent="blue" data-dir="left">
         <span class="pillar-ghost" aria-hidden="true">01</span>
-        <div class="pillar-index">Backend</div>
+        <div class="pillar-top">
+          <div class="pillar-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v6c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 11v6c0 1.66 4 3 9 3s9-1.34 9-3v-6"/></svg>
+          </div>
+          <span class="pillar-index">Backend</span>
+          <a class="pillar-arrow" href="#work" aria-label="Backend &amp; microservices work">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+          </a>
+        </div>
         <h3>Backend &amp; Microservices Engineering</h3>
         <p>Spring Boot microservices, event-driven systems with Kafka, JWT and role-based security, layered architecture built to survive real traffic &mdash; not demo traffic.</p>
-        <ul class="pillar-tags"><li>Spring Boot</li><li>Kafka</li><li>PostgreSQL</li><li>JWT</li></ul>
+        <ul class="pillar-tags"><li>Spring Boot</li><li>Kafka</li><li>PostgreSQL</li><li>JWT</li><li>Microservices</li></ul>
       </article>
+
       <article class="pillar" data-accent="violet" data-dir="up">
         <span class="pillar-ghost" aria-hidden="true">02</span>
-        <div class="pillar-index">AI</div>
+        <div class="pillar-top">
+          <div class="pillar-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18M3 12h18M5.5 6.5c2 1.4 11 1.4 13 0M5.5 17.5c2-1.4 11-1.4 13 0"/></svg>
+          </div>
+          <span class="pillar-index">AI</span>
+          <a class="pillar-arrow" href="#work" aria-label="AI-powered applications work">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+          </a>
+        </div>
         <h3>AI-Powered Applications</h3>
         <p>PyTorch-powered computer vision, real-time image inference with ResNet50, and custom CNN architectures &mdash; AI models that run in production, not just notebooks.</p>
-        <ul class="pillar-tags"><li>PyTorch</li><li>ResNet50</li><li>FastAPI</li><li>Python</li></ul>
+        <ul class="pillar-tags"><li>PyTorch</li><li>ResNet50</li><li>OpenCV</li><li>Python</li><li>FastAPI</li></ul>
       </article>
+
       <article class="pillar" data-accent="cyan" data-dir="right">
         <span class="pillar-ghost" aria-hidden="true">03</span>
-        <div class="pillar-index">Product</div>
+        <div class="pillar-top">
+          <div class="pillar-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg>
+          </div>
+          <span class="pillar-index">Product</span>
+          <a class="pillar-arrow" href="#work" aria-label="Full-stack product work">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+          </a>
+        </div>
         <h3>Full-Stack Product Development</h3>
         <p>React front ends, real-time WebSocket systems, and products taken all the way to a live URL &mdash; not just a repo.</p>
-        <ul class="pillar-tags"><li>React.js</li><li>WebSocket</li><li>Redis</li><li>Zustand</li></ul>
+        <ul class="pillar-tags"><li>React.js</li><li>WebSocket</li><li>Redis</li><li>Zustand</li><li>Tailwind CSS</li></ul>
       </article>
     </div>
   </section>
