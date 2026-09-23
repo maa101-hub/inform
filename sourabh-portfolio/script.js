@@ -168,7 +168,14 @@
       const t = item.dataset.target, a = item.dataset.action;
       closeCmd();
       if (t) setTimeout(() => goTo(t), 90);
-      else if (a === "resume") window.open("assets/sourabhramteke.pdf");
+      else if (a === "resume") {
+        const dl = document.createElement("a");
+        dl.href = "assets/updated_resume.pdf";
+        dl.download = "Sourabh_Ramteke_Resume.pdf";
+        document.body.appendChild(dl);
+        dl.click();
+        dl.remove();
+      }
     });
   });
 
@@ -303,6 +310,124 @@
       a.addEventListener("click", () => navDrawer.classList.remove("open"))
     );
   }
+
+  /* smooth fade-down entrance for the whole bar */
+  if (nav && window.gsap && !prefersReduced) {
+    gsap.from(nav, { y: -28, opacity: 0, duration: 0.9, ease: "power3.out", delay: 0.15 });
+  }
+
+  /* ─────────────────────────────────────────────
+     NAV ACTIVE-SECTION INDICATOR
+     A glowing dot + short underline that glides to
+     the link matching the section currently in view.
+  ───────────────────────────────────────────── */
+  (function navActiveIndicator() {
+    const navLinks  = document.getElementById("navLinks");
+    const indicator = document.getElementById("navIndicator");
+    if (!navLinks || !indicator) return;
+
+    const links = Array.from(navLinks.querySelectorAll("a[data-section]"));
+    const sections = links
+      .map((a) => ({ link: a, el: document.getElementById(a.dataset.section) }))
+      .filter((s) => s.el);
+    if (!sections.length) return;
+
+    let activeLink = null;
+
+    function moveTo(link, animate) {
+      if (!link) return;
+      const bar   = link.getBoundingClientRect();
+      const host  = navLinks.getBoundingClientRect();
+      const left  = bar.left - host.left;
+      const width = bar.width;
+      indicator.classList.add("show");
+      if (window.gsap && animate && !prefersReduced) {
+        gsap.to(indicator, { left, width, duration: 0.45, ease: "power3.out", overwrite: "auto" });
+      } else {
+        indicator.style.left  = left + "px";
+        indicator.style.width = width + "px";
+      }
+    }
+
+    function setActive(link, animate) {
+      if (link === activeLink) return;
+      links.forEach((l) => l.classList.toggle("is-active", l === link));
+      activeLink = link;
+      moveTo(link, animate);
+    }
+
+    // Determine which section is most in view and reflect it in the nav.
+    const io = new IntersectionObserver(
+      (entries) => {
+        // pick the entry with the largest visible ratio that is intersecting
+        let best = null;
+        entries.forEach((e) => {
+          if (e.isIntersecting && (!best || e.intersectionRatio > best.intersectionRatio)) best = e;
+        });
+        if (best) {
+          const match = sections.find((s) => s.el === best.target);
+          if (match) setActive(match.link, true);
+        }
+      },
+      { rootMargin: "-45% 0px -45% 0px", threshold: [0, 0.25, 0.5, 0.75, 1] }
+    );
+    sections.forEach((s) => io.observe(s.el));
+
+    // keep indicator aligned on resize / font settle
+    window.addEventListener("resize", () => moveTo(activeLink, false));
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => moveTo(activeLink, false));
+    }
+  })();
+
+  /* ─────────────────────────────────────────────
+     ANIMATED DEV LOGO — "SR" ⇄ "<SR />"
+     Hover: brackets slide in from both sides, letters
+     separate slightly, blue→purple glow. Leave: reverse.
+     Plus a subtle cursor-following glow behind the mark.
+  ───────────────────────────────────────────── */
+  (function devLogo() {
+    const mark = document.getElementById("navMark");
+    if (!mark || !window.gsap) return;
+
+    const glow     = mark.querySelector(".nm-glow");
+    const bracketL = mark.querySelector(".nm-bracket-l");
+    const bracketR = mark.querySelector(".nm-bracket-r");
+    const slash    = mark.querySelector(".nm-slash");
+    const sLetter  = mark.querySelector(".nm-s");
+    const rLetter  = mark.querySelector(".nm-r");
+
+    // resting state — brackets tucked in behind the letters, invisible
+    gsap.set([bracketL, slash], { x: 8, opacity: 0 });
+    gsap.set(bracketR, { x: -8, opacity: 0 });
+
+    const hoverTl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
+    hoverTl
+      .to([bracketL, bracketR, slash], { x: 0, opacity: 1, duration: 0.5, stagger: 0.03 }, 0)
+      .to(sLetter, { x: -1.5, duration: 0.5 }, 0)
+      .to(rLetter, { x: 1.5, duration: 0.5 }, 0)
+      .to(mark, { textShadow: "0 0 16px rgba(99,102,241,0.55)", duration: 0.5 }, 0)
+      .to(glow, { opacity: 0.85, duration: 0.5 }, 0);
+
+    if (prefersReduced) {
+      // no motion: just toggle visibility instantly on hover
+      mark.addEventListener("mouseenter", () => hoverTl.progress(1).pause());
+      mark.addEventListener("mouseleave", () => hoverTl.progress(0).pause());
+    } else {
+      mark.addEventListener("mouseenter", () => hoverTl.play());
+      mark.addEventListener("mouseleave", () => hoverTl.reverse());
+    }
+
+    // subtle cursor-following glow (only while hovering)
+    const gx = gsap.quickTo(glow, "x", { duration: 0.4, ease: "power3.out" });
+    const gy = gsap.quickTo(glow, "y", { duration: 0.4, ease: "power3.out" });
+    mark.addEventListener("mousemove", (e) => {
+      const r = mark.getBoundingClientRect();
+      gx((e.clientX - r.left - r.width / 2) * 0.5);
+      gy((e.clientY - r.top - r.height / 2) * 0.5);
+    });
+    mark.addEventListener("mouseleave", () => { gx(0); gy(0); });
+  })();
 
   /* ─────────────────────────────────────────────
      SCROLL PROGRESS
@@ -727,12 +852,14 @@
     const section = document.querySelector(".pillars");
     if (!section) return;
 
-    const heading = section.querySelectorAll(".pillars-head > *");
+    const heading = section.querySelectorAll(".pillars-head *");
     const cards   = gsap.utils.toArray(".pillar", section);
     const ghosts  = gsap.utils.toArray(".pillar-ghost", section);
+    const rail    = section.querySelector(".pillars-rail");
 
     if (prefersReduced) {
       gsap.set([heading, cards, ghosts], { opacity: 1, x: 0, y: 0 });
+      if (rail) rail.classList.add("lit");
       return;
     }
 
@@ -750,16 +877,19 @@
     gsap.set(ghosts, { opacity: 0, scale: 0.85 });
 
     const tl = gsap.timeline({
-      scrollTrigger: { trigger: section, start: "top 72%", once: true },
+      scrollTrigger: {
+        trigger: section, start: "top 72%", once: true,
+        onEnter: () => { if (rail) rail.classList.add("lit"); },
+      },
     });
 
-    tl.to(heading, { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: "power3.out" })
+    tl.to(heading, { opacity: 1, y: 0, duration: 0.6, stagger: 0.08, ease: "power3.out" })
       .to(cards, {
         opacity: 1, x: 0, y: 0, scale: 1,
         duration: 0.75, stagger: 0.15, ease: "power4.out",
       }, "-=0.2")
       .to(ghosts, {
-        opacity: 0.05, scale: 1,
+        opacity: 0.12, scale: 1,
         duration: 0.6, stagger: 0.15, ease: "power2.out",
       }, "-=0.5");
   })();
@@ -1303,6 +1433,35 @@
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(() => { if (window.ScrollTrigger) ScrollTrigger.refresh(); });
   }
+
+  /* ─────────────────────────────────────────────
+     RESUME DOWNLOAD — micro animation
+     Plays a brief "downloading → done" state on any
+     .js-resume link. The native download still fires;
+     this is purely visual feedback.
+  ───────────────────────────────────────────── */
+  document.querySelectorAll(".js-resume").forEach((link) => {
+    link.addEventListener("click", () => {
+      if (link.classList.contains("is-downloading")) return;
+      link.classList.remove("is-done");
+      link.classList.add("is-downloading");
+
+      // spawn a small falling-arrow particle for extra flair
+      const spark = document.createElement("span");
+      spark.className = "resume-spark";
+      link.appendChild(spark);
+
+      window.setTimeout(() => {
+        link.classList.remove("is-downloading");
+        link.classList.add("is-done");
+        spark.remove();
+      }, 1100);
+
+      window.setTimeout(() => {
+        link.classList.remove("is-done");
+      }, 2600);
+    });
+  });
 
 })();
 
