@@ -1228,14 +1228,25 @@
   }
 
   /* ─────────────────────────────────────────────
-     CONTACT FORM  (set FORMSPREE_ID to go live)
+     CONTACT FORM
+     To collect submissions server-side, create a free
+     form at https://formspree.io and paste its ID below
+     (the part after /f/, e.g. "xyzabcd"). When empty,
+     the form falls back to opening the visitor's email
+     client with a prefilled message — so a submission is
+     never silently lost or falsely reported as "sent".
   ───────────────────────────────────────────── */
-  const FORMSPREE_ID = "";
+  const FORMSPREE_ID = ""; // e.g. "mwkgabcd"
+  const CONTACT_EMAIL = "sourabhramtekee@gmail.com";
 
   const ctaForm    = document.getElementById("ctaForm");
   const ctaSuccess = document.getElementById("ctaSuccess");
   const ctaError   = document.getElementById("ctaError");
   const cfSubmit   = document.getElementById("cf-submit");
+  const cfSubmitLabel = cfSubmit ? cfSubmit.querySelector("span") : null;
+  const cfSubmitText = cfSubmitLabel ? cfSubmitLabel.textContent : "Send Message";
+
+  function setSubmitLabel(text) { if (cfSubmitLabel) cfSubmitLabel.textContent = text; }
 
   if (ctaForm) {
     ctaForm.addEventListener("submit", async (e) => {
@@ -1247,26 +1258,33 @@
 
       ctaSuccess.classList.remove("visible");
       ctaError.classList.remove("visible");
-      cfSubmit.disabled = true;
-      cfSubmit.querySelector("span").textContent = "Sending...";
 
-      if (FORMSPREE_ID) {
-        try {
-          const res = await fetch("https://formspree.io/f/" + FORMSPREE_ID, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Accept": "application/json" },
-            body: JSON.stringify({ name, email, message }),
-          });
-          if (res.ok) { ctaSuccess.classList.add("visible"); ctaForm.reset(); }
-          else        { ctaError.classList.add("visible"); }
-        } catch (_) { ctaError.classList.add("visible"); }
-      } else {
+      // No backend configured — hand off to the visitor's email client so the
+      // message actually reaches the inbox instead of vanishing.
+      if (!FORMSPREE_ID) {
+        const subject = encodeURIComponent("Portfolio contact from " + name);
+        const body    = encodeURIComponent(message + "\n\n— " + name + " (" + email + ")");
+        window.location.href = "mailto:" + CONTACT_EMAIL + "?subject=" + subject + "&body=" + body;
+        ctaSuccess.textContent = "Opening your email app to send this to " + CONTACT_EMAIL + " \u2014 just hit send.";
         ctaSuccess.classList.add("visible");
-        ctaForm.reset();
+        return;
       }
 
+      cfSubmit.disabled = true;
+      setSubmitLabel("Sending\u2026");
+
+      try {
+        const res = await fetch("https://formspree.io/f/" + FORMSPREE_ID, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify({ name, email, message }),
+        });
+        if (res.ok) { ctaSuccess.classList.add("visible"); ctaForm.reset(); }
+        else        { ctaError.classList.add("visible"); }
+      } catch (_) { ctaError.classList.add("visible"); }
+
       cfSubmit.disabled = false;
-      cfSubmit.querySelector("span").textContent = "Send message";
+      setSubmitLabel(cfSubmitText);
     });
   }
 
