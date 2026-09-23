@@ -1758,3 +1758,102 @@ body.no-cine .intro-enter { opacity: 1 !important; pointer-events: auto !importa
 
 
 
+
+
+/* ═════════════════════════════════════════════
+   RESUME DOWNLOAD — micro interaction
+═════════════════════════════════════════════ */
+.js-resume { position: relative; overflow: hidden; }
+
+/* icon + label sit inline in the hero button */
+.js-resume .resume-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  vertical-align: -3px;
+  transition: transform 0.3s var(--ease, cubic-bezier(0.4, 0, 0.2, 1));
+}
+.js-resume .resume-icon svg { width: 100%; height: 100%; }
+
+/* hover: nudge the arrow down a touch */
+.js-resume:hover .resume-icon { transform: translateY(2px); }
+
+/* DOWNLOADING: arrow bounces down repeatedly, label swaps out */
+.js-resume.is-downloading { pointer-events: none; }
+.js-resume.is-downloading .resume-icon { animation: resumeArrow 0.6s ease-in-out infinite; }
+.js-resume.is-downloading .resume-label { opacity: 0.55; }
+
+/* progress sweep bar along the bottom of the button */
+.js-resume.is-downloading::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  transform-origin: left center;
+  background: linear-gradient(90deg, var(--blue, #3b82f6), var(--violet, #8b5cf6), var(--cyan, #22d3ee));
+  animation: resumeProgress 1s ease-out forwards;
+}
+
+/* DONE: quick green flash + check-like glow */
+.js-resume.is-done .resume-icon { animation: resumePop 0.45s var(--ease, cubic-bezier(0.34, 1.56, 0.64, 1)); }
+.js-resume.is-done::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  background: #34d399;
+  animation: resumeFadeOut 0.9s ease forwards;
+}
+
+/* the little falling spark particle */
+.resume-spark {
+  position: absolute;
+  top: 50%;
+  left: 22px;
+  width: 5px;
+  height: 5px;
+  margin-top: -2px;
+  border-radius: 50%;
+  background: var(--cyan, #22d3ee);
+  box-shadow: 0 0 8px 1px var(--cyan, #22d3ee);
+  pointer-events: none;
+  animation: resumeSpark 1s ease-in forwards;
+}
+
+@keyframes resumeArrow {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(4px); }
+}
+@keyframes resumeProgress {
+  0%   { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
+@keyframes resumePop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.35) translateY(0); }
+  100% { transform: scale(1); }
+}
+@keyframes resumeFadeOut {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes resumeSpark {
+  0%   { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(26px) scale(0.4); opacity: 0; }
+}
+
+/* respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .js-resume .resume-icon,
+  .js-resume.is-downloading .resume-icon,
+  .js-resume.is-done .resume-icon,
+  .js-resume.is-downloading::after,
+  .resume-spark { animation: none !important; transition: none !important; }
+}

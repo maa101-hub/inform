@@ -168,7 +168,14 @@
       const t = item.dataset.target, a = item.dataset.action;
       closeCmd();
       if (t) setTimeout(() => goTo(t), 90);
-      else if (a === "resume") window.open("assets/sourabhramteke.pdf");
+      else if (a === "resume") {
+        const dl = document.createElement("a");
+        dl.href = "assets/updated_resume.pdf";
+        dl.download = "Sourabh_Ramteke_Resume.pdf";
+        document.body.appendChild(dl);
+        dl.click();
+        dl.remove();
+      }
     });
   });
 
@@ -1303,6 +1310,35 @@
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(() => { if (window.ScrollTrigger) ScrollTrigger.refresh(); });
   }
+
+  /* ─────────────────────────────────────────────
+     RESUME DOWNLOAD — micro animation
+     Plays a brief "downloading → done" state on any
+     .js-resume link. The native download still fires;
+     this is purely visual feedback.
+  ───────────────────────────────────────────── */
+  document.querySelectorAll(".js-resume").forEach((link) => {
+    link.addEventListener("click", () => {
+      if (link.classList.contains("is-downloading")) return;
+      link.classList.remove("is-done");
+      link.classList.add("is-downloading");
+
+      // spawn a small falling-arrow particle for extra flair
+      const spark = document.createElement("span");
+      spark.className = "resume-spark";
+      link.appendChild(spark);
+
+      window.setTimeout(() => {
+        link.classList.remove("is-downloading");
+        link.classList.add("is-done");
+        spark.remove();
+      }, 1100);
+
+      window.setTimeout(() => {
+        link.classList.remove("is-done");
+      }, 2600);
+    });
+  });
 
 })();
 
