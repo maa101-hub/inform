@@ -716,10 +716,10 @@
           "MongoDB-backed Node.js API with a React front end",
         ],
         stack: ["React", "Node.js", "MongoDB", "Socket.io"],
-        url: "free-fire-tournament.vercel.app",
+        url: "free-fire-tournament-gray.vercel.app",
         img: "assets/projects/ff.webp",
         link: "https://github.com/maa101-hub/free_fire_tournament",
-        demo: "https://vercel.com/maa101-hubs-projects/free-fire-tournament",
+        demo: "https://free-fire-tournament-gray.vercel.app/",
         demoLabel: "Live Demo",
       },
     ];
