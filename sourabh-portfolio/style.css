@@ -481,6 +481,40 @@ body.no-cine .intro-enter { opacity: 1 !important; pointer-events: auto !importa
 .hero-glow-a { width: 560px; height: 560px; background: var(--blue); top: -160px; right: -120px; }
 .hero-glow-b { width: 480px; height: 480px; background: var(--violet); bottom: -180px; left: -140px; }
 
+/* ── slow-drifting aurora: colored light that breathes over the photo ── */
+.hero-aurora {
+  position: absolute; inset: 0; z-index: 0; overflow: hidden;
+  pointer-events: none; mix-blend-mode: screen; opacity: 0.6;
+}
+.hero-aurora .ha-blob {
+  position: absolute; border-radius: 50%;
+  filter: blur(90px); opacity: 0.5; will-change: transform;
+}
+.ha-blob-1 { width: 46vw; height: 46vw; max-width: 620px; max-height: 620px;
+  background: radial-gradient(circle, rgba(59,130,246,0.75), transparent 68%);
+  top: -12%; right: 4%; animation: auroraDrift1 22s ease-in-out infinite; }
+.ha-blob-2 { width: 40vw; height: 40vw; max-width: 540px; max-height: 540px;
+  background: radial-gradient(circle, rgba(139,92,246,0.7), transparent 68%);
+  bottom: -18%; left: 2%; animation: auroraDrift2 27s ease-in-out infinite; }
+.ha-blob-3 { width: 32vw; height: 32vw; max-width: 440px; max-height: 440px;
+  background: radial-gradient(circle, rgba(6,182,212,0.6), transparent 70%);
+  top: 30%; left: 42%; animation: auroraDrift3 19s ease-in-out infinite; }
+@keyframes auroraDrift1 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%     { transform: translate(-7%, 8%) scale(1.12); }
+}
+@keyframes auroraDrift2 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%     { transform: translate(9%, -6%) scale(1.15); }
+}
+@keyframes auroraDrift3 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%     { transform: translate(-6%, -9%) scale(0.9); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-aurora .ha-blob { animation: none; }
+}
+
 /* copy sits over the photo, single column, left-aligned */
 .hero-inner {
   position: relative; z-index: 2;
@@ -582,6 +616,7 @@ body.no-cine .intro-enter { opacity: 1 !important; pointer-events: auto !importa
 @media (prefers-reduced-motion: reduce) {
   .hero-scroll-cue { animation: none; opacity: 1; }
   .hero-scroll-cue span::after { animation: none; }
+  .hero-eyebrow .pulse { animation: none; }
 }
 
 
@@ -786,6 +821,9 @@ body.no-cine .intro-enter { opacity: 1 !important; pointer-events: auto !importa
 }
 .pillar:hover::before { opacity: 1; }
 .pillar:hover::after  { opacity: 1; }
+/* when JS 3D-tilt is active, let GSAP own the transform (tilt + lift) */
+body.js-tilt .pillar:hover { transform: none; }
+body.js-tilt .pillar { will-change: transform; }
 
 /* large faded index number, bottom-right, behind the copy */
 .pillar-ghost {
@@ -1479,6 +1517,8 @@ body.no-cine .intro-enter { opacity: 1 !important; pointer-events: auto !importa
   transition: border-color 0.3s var(--ease), transform 0.3s var(--ease), background 0.3s var(--ease), box-shadow 0.3s var(--ease);
 }
 .ws-card:hover { transform: translateY(-4px); border-color: rgba(59,130,246,0.4); }
+body.js-tilt .ws-card:hover { transform: none; border-color: rgba(59,130,246,0.4); }
+body.js-tilt .ws-card { will-change: transform; }
 .ws-card.active {
   border-color: var(--blue); background: rgba(59,130,246,0.06);
   box-shadow: 0 0 0 1px var(--blue), 0 14px 40px -18px rgba(59,130,246,0.5);
