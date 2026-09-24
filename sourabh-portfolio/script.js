@@ -24,11 +24,14 @@
       easing: (t) => 1 - Math.pow(1 - t, 3),
       smoothWheel: true,
     });
-    (function raf(time) { lenis.raf(time); requestAnimationFrame(raf); })();
     if (window.gsap && window.ScrollTrigger) {
+      // Drive Lenis from GSAP's ticker so both stay in sync on one rAF loop.
       lenis.on("scroll", ScrollTrigger.update);
       gsap.ticker.add((t) => lenis.raf(t * 1000));
       gsap.ticker.lagSmoothing(0);
+    } else {
+      // GSAP absent — fall back to Lenis' own rAF loop.
+      (function raf(time) { lenis.raf(time); requestAnimationFrame(raf); })();
     }
   }
 
@@ -100,26 +103,25 @@
      MAGNETIC BUTTONS
   ───────────────────────────────────────────── */
   if (!isTouchDevice && !prefersReduced) {
-    document.querySelectorAll(".mag-btn").forEach((btn) => {
-      btn.addEventListener("mousemove", (e) => {
-        const r = btn.getBoundingClientRect();
-        const dx = (e.clientX - (r.left + r.width  / 2)) * 0.26;
-        const dy = (e.clientY - (r.top  + r.height / 2)) * 0.26;
-        btn.style.transform = "translate(" + dx + "px," + dy + "px)";
+    // Cache each element's rect on mouseenter (and refresh on resize) so the
+    // mousemove handler never forces synchronous layout on the hot path.
+    const bindMagnet = (el, strength, yOffset) => {
+      let rect = null;
+      const measure = () => { rect = el.getBoundingClientRect(); };
+      el.addEventListener("mouseenter", measure);
+      window.addEventListener("resize", () => { rect = null; }, { passive: true });
+      el.addEventListener("mousemove", (e) => {
+        if (!rect) measure();
+        const dx = (e.clientX - (rect.left + rect.width  / 2)) * strength;
+        const dy = (e.clientY - (rect.top  + rect.height / 2)) * strength;
+        el.style.transform = "translate(" + dx + "px," + (dy + yOffset) + "px)";
       });
-      btn.addEventListener("mouseleave", () => { btn.style.transform = "translate(0,0)"; });
-    });
+      el.addEventListener("mouseleave", () => { el.style.transform = ""; });
+    };
 
+    document.querySelectorAll(".mag-btn").forEach((btn) => bindMagnet(btn, 0.26, 0));
     // subtle magnetic pull on the hero social icons (gentler than buttons)
-    document.querySelectorAll(".hero-social a").forEach((icon) => {
-      icon.addEventListener("mousemove", (e) => {
-        const r = icon.getBoundingClientRect();
-        const dx = (e.clientX - (r.left + r.width  / 2)) * 0.34;
-        const dy = (e.clientY - (r.top  + r.height / 2)) * 0.34;
-        icon.style.transform = "translate(" + dx + "px," + (dy - 2) + "px)";
-      });
-      icon.addEventListener("mouseleave", () => { icon.style.transform = ""; });
-    });
+    document.querySelectorAll(".hero-social a").forEach((icon) => bindMagnet(icon, 0.34, -2));
   }
 
   /* ─────────────────────────────────────────────
@@ -205,8 +207,20 @@
     }, 1000);
   }
 
-  if (intro) {
+  // Play the cinematic intro only once per browser session. On repeat
+  // navigations within the same session, skip straight to the site so
+  // returning visitors aren't forced to sit through it (and re-locked out
+  // of scrolling) every time.
+  let introAlreadyPlayed = false;
+  try { introAlreadyPlayed = sessionStorage.getItem("introPlayed") === "1"; } catch (_) {}
+
+  if (intro && introAlreadyPlayed) {
+    intro.classList.add("hidden");
+    intro.style.display = "none";
+    document.body.style.overflow = "";
+  } else if (intro) {
     {
+      try { sessionStorage.setItem("introPlayed", "1"); } catch (_) {}
       document.body.style.overflow = "hidden";
 
       if (introSkip)  introSkip.addEventListener("click", closeIntro);
@@ -301,9 +315,6 @@
   const nav = document.getElementById("nav");
   const navBurger = document.getElementById("navBurger");
   const navDrawer = document.getElementById("navDrawer");
-  window.addEventListener("scroll", () => {
-    nav.classList.toggle("scrolled", window.scrollY > 40);
-  });
   if (navBurger) {
     navBurger.addEventListener("click", () => navDrawer.classList.toggle("open"));
     navDrawer.querySelectorAll("a").forEach((a) =>
@@ -418,13 +429,17 @@
       mark.addEventListener("mouseleave", () => hoverTl.reverse());
     }
 
-    // subtle cursor-following glow (only while hovering)
+    // subtle cursor-following glow (only while hovering). Rect cached on
+    // enter / invalidated on resize so mousemove avoids layout reads.
     const gx = gsap.quickTo(glow, "x", { duration: 0.4, ease: "power3.out" });
     const gy = gsap.quickTo(glow, "y", { duration: 0.4, ease: "power3.out" });
+    let markRect = null;
+    mark.addEventListener("mouseenter", () => { markRect = mark.getBoundingClientRect(); });
+    window.addEventListener("resize", () => { markRect = null; }, { passive: true });
     mark.addEventListener("mousemove", (e) => {
-      const r = mark.getBoundingClientRect();
-      gx((e.clientX - r.left - r.width / 2) * 0.5);
-      gy((e.clientY - r.top - r.height / 2) * 0.5);
+      if (!markRect) markRect = mark.getBoundingClientRect();
+      gx((e.clientX - markRect.left - markRect.width / 2) * 0.5);
+      gy((e.clientY - markRect.top - markRect.height / 2) * 0.5);
     });
     mark.addEventListener("mouseleave", () => { gx(0); gy(0); });
   })();
@@ -433,14 +448,27 @@
      SCROLL PROGRESS
   ───────────────────────────────────────────── */
   const progress = document.getElementById("scrollProgress");
-  function updateProgress() {
+
+  // Single rAF-throttled scroll reader: updates the progress bar AND the nav
+  // glassmorphism state. Coalescing both into one frame-bounded callback
+  // avoids running layout reads on every raw scroll event (Lenis fires many).
+  let scrollTicking = false;
+  function onScrollFrame() {
     const h = document.documentElement;
+    const scrollTop = h.scrollTop;
     const height = h.scrollHeight - h.clientHeight;
-    const pct = height > 0 ? (h.scrollTop / height) * 100 : 0;
+    const pct = height > 0 ? (scrollTop / height) * 100 : 0;
     if (progress) progress.style.width = pct + "%";
+    if (nav) nav.classList.toggle("scrolled", scrollTop > 40);
+    scrollTicking = false;
   }
-  window.addEventListener("scroll", updateProgress);
-  updateProgress();
+  function requestScrollFrame() {
+    if (scrollTicking) return;
+    scrollTicking = true;
+    requestAnimationFrame(onScrollFrame);
+  }
+  window.addEventListener("scroll", requestScrollFrame, { passive: true });
+  onScrollFrame();
 
   /* ─────────────────────────────────────────────
      BACK TO TOP
@@ -771,6 +799,18 @@
       const fadeIn = () => {
         els.img.src = p.img;
         els.img.alt = p.title.replace(/&mdash;/g, "—") + " screenshot";
+        // Curtain wipe: the new screenshot unveils left→right via clip-path,
+        // with a faint scale settle. Skipped under reduced motion.
+        if (!prefersReduced) {
+          gsap.fromTo(els.img,
+            { clipPath: "inset(0 100% 0 0)", scale: 1.06 },
+            {
+              clipPath: "inset(0 0% 0 0)", scale: 1,
+              duration: 0.7, ease: "power3.inOut",
+              clearProps: "clipPath",
+            }
+          );
+        }
         gsap.fromTo([els.info, els.screen],
           { opacity: 0, y: prefersReduced ? 0 : 12 },
           {
@@ -1204,9 +1244,43 @@
   })();
 
   /* ─────────────────────────────────────────────
+     3D CARD TILT — subtle mouse-follow parallax on
+     the focus pillars and project cards. Rect cached
+     on enter; disabled on touch / reduced motion.
+  ───────────────────────────────────────────── */
+  if (!isTouchDevice && !prefersReduced && window.gsap) {
+    // Flag lets CSS drop its own :hover translate so GSAP owns the full
+    // transform (tilt + lift) on these cards without the two fighting.
+    document.body.classList.add("js-tilt");
+    const bindTilt = (el, maxDeg, lift) => {
+      let rect = null;
+      const measure = () => { rect = el.getBoundingClientRect(); };
+      const rotX = gsap.quickTo(el, "rotationX", { duration: 0.4, ease: "power3.out" });
+      const rotY = gsap.quickTo(el, "rotationY", { duration: 0.4, ease: "power3.out" });
+      el.addEventListener("mouseenter", () => {
+        measure();
+        gsap.to(el, { transformPerspective: 900, y: lift, duration: 0.4, ease: "power3.out" });
+      });
+      window.addEventListener("resize", () => { rect = null; }, { passive: true });
+      el.addEventListener("mousemove", (e) => {
+        if (!rect) measure();
+        const px = (e.clientX - rect.left) / rect.width  - 0.5; // -0.5..0.5
+        const py = (e.clientY - rect.top)  / rect.height - 0.5;
+        rotY(px * maxDeg * 2);
+        rotX(-py * maxDeg * 2);
+      });
+      el.addEventListener("mouseleave", () => {
+        gsap.to(el, { rotationX: 0, rotationY: 0, y: 0, duration: 0.6, ease: "power3.out" });
+      });
+    };
+    document.querySelectorAll(".pillar").forEach((el) => bindTilt(el, 4, -6));
+    document.querySelectorAll(".ws-card").forEach((el) => bindTilt(el, 5, -4));
+  }
+
+  /* ─────────────────────────────────────────────
      GENERIC SCROLL REVEALS
   ───────────────────────────────────────────── */
-  if (window.gsap && window.ScrollTrigger) {
+  if (window.gsap && window.ScrollTrigger && !prefersReduced) {
     [
       ".story-copy > *", ".tl-item",
       ".work-item", ".feat-card",
@@ -1223,8 +1297,10 @@
       });
     });
   } else {
-    document.querySelectorAll(".pillar, .work-item, .feat-card, .ach-card")
-      .forEach((el) => { el.style.opacity = 1; });
+    // Reduced motion or no GSAP: show everything statically, no reveal.
+    document.querySelectorAll(
+      ".story-copy > *, .tl-item, .work-item, .feat-card, .ach-card, .cta-headline, .cta-sub, .stat, .pillar"
+    ).forEach((el) => { el.style.opacity = 1; });
   }
 
   /* ─────────────────────────────────────────────
@@ -1460,6 +1536,8 @@
   ───────────────────────────────────────────── */
   document.querySelectorAll(".js-resume").forEach((link) => {
     link.addEventListener("click", () => {
+      // Respect reduced motion: let the download happen with no animation.
+      if (prefersReduced) return;
       if (link.classList.contains("is-downloading")) return;
       link.classList.remove("is-done");
       link.classList.add("is-downloading");
