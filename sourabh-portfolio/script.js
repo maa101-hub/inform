@@ -686,9 +686,11 @@
           "CNN vs. ResNet50 model comparison dashboard in React.js",
         ],
         stack: ["Python", "FastAPI", "PyTorch", "ResNet50", "React", "Tailwind CSS"],
-        url: "plantvision-ai.vercel.app",
+        url: "backend-roan-three-31.vercel.app",
         img: "assets/projects/plant_vision.webp",
         link: "https://github.com/maa101-hub/plant_ui",
+        demo: "https://backend-roan-three-31.vercel.app/",
+        demoLabel: "Live Demo",
       },
       {
         idx: "05 / 06",
