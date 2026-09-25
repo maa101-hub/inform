@@ -703,9 +703,11 @@
           "Responsive React dashboard backed by a relational schema",
         ],
         stack: ["Java", "Spring Boot", "React", "MySQL", "JWT"],
-        url: "jobportal.vercel.app",
+        url: "jobportal-theta-one.vercel.app",
         img: "assets/projects/jobportal.webp",
         link: "https://github.com/maa101-hub/jobportal",
+        demo: "https://jobportal-theta-one.vercel.app/",
+        demoLabel: "Live Demo",
       },
       {
         idx: "06 / 06",
