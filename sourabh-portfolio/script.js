@@ -704,7 +704,7 @@
         ],
         stack: ["Java", "Spring Boot", "React", "MySQL", "JWT"],
         url: "jobportal-theta-one.vercel.app",
-        img: "assets/projects/jobportal.webp",
+        img: "assets/projects/jobportal.png",
         link: "https://github.com/maa101-hub/jobportal",
         demo: "https://jobportal-theta-one.vercel.app/",
         demoLabel: "Live Demo",
